@@ -1,31 +1,62 @@
-const courseTitle = "Advanced Web Development";
+// Story data structure:
+// {
+//   objectID: unique identifier → used as React key
+//   title: title of the article
+//   url: link to the article
+//   author: who posted it
+//   points: popularity score
+//   num_comments: number of comments
+// }
+// objectID is used as key because it is unique and stable
+// This structure is realistic because it matches real API responses
+
+const stories = [
+  {
+    objectID: 1,
+    title: "React is the future of web development",
+    url: "https://reactjs.org",
+    author: "dali-benslama",
+    points: 120,
+    num_comments: 35,
+  },
+  {
+    objectID: 2,
+    title: "Vite makes React development faster",
+    url: "https://vitejs.dev",
+    author: "evan-you",
+    points: 85,
+    num_comments: 20,
+  },
+  {
+    objectID: 3,
+    title: "JavaScript is everywhere",
+    url: "https://developer.mozilla.org",
+    author: "mdn-web",
+    points: 200,
+    num_comments: 50,
+  },
+];
+
 function App() {
-  const studentName = "Mohamed Ali Ben Slama";
-  const student = {
-    name: "Mohamed Ali Ben Slama",
-    age: 20,
-    track: "Web Development"
-  };
-  function sayHello() {
-    return "Hello, " + studentName + "! Welcome to the course.";
-  }
   return (
     <div>
-      <p>{courseTitle}</p>
-      <h1>daliben8</h1>
-      <p>{studentName}</p>
-      <p>Welcome to {courseTitle}, {studentName}!</p>
-      <label htmlFor="username">Enter your username:</label>
-<input type="text" id="username" />
-<p>Name: {student.name}</p>
-<p>Age: {student.age}</p>
-<p>Track: {student.track}</p>
-<p>{sayHello()}</p>
+      <h1>Hacker News Stories</h1>
+      {stories.map((story) => (
+        <div key={story.objectID}>
+          <h3>
+            <a href={story.url} target="_blank">{story.title}</a>
+          </h3>
+          <p>By: <span>{story.author}</span></p>
+          <p>Points: <span>{story.points}</span></p>
+          <p>Comments: <span>{story.num_comments}</span></p>
+        </div>
+      ))}
     </div>
   );
 }
 
 export default App;
-// 1. One thing I understand well: using {} to display variables in JSX
-// 2. One thing still confusing: the difference between inside and outside component variables
-// 3. One mistake I made and fixed: putting sayHello function inside the student object
+
+// 1. map() is essential because it returns a new array of JSX elements to render
+// 2. objectID is the correct key because it is unique and never changes
+// 3. When using the real API, stories will come from a fetch() call instead of a fixed array
