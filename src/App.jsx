@@ -35,54 +35,52 @@ const stories = [
   },
 ];
 
-function Header() {
-  return (
-    <div>
-      <h1>Hacker News Stories</h1>
-    </div>
-  );
-}
+const Header = () => (
+  <div>
+    <h1>Hacker News Stories</h1>
+  </div>
+);
 
-function Search() {
+const Search = () => {
+  const handleChange = (event) => {
+    console.log(event.target.value);
+    console.log("User is typing...");
+  };
+
   return (
     <div>
       <label htmlFor="search">Search: </label>
-      <input type="text" id="search" />
+      <input type="text" id="search" onChange={handleChange} />
     </div>
   );
-}
+};
 
-function List() {
-  return (
-    <div>
-      {stories.map((story) => (
-        <div key={story.objectID}>
-          <h3>
-            <a href={story.url} target="_blank">{story.title}</a>
-          </h3>
-          <p>By: <span>{story.author}</span></p>
-          <p>Points: <span>{story.points}</span></p>
-          <p>Comments: <span>{story.num_comments}</span></p>
-        </div>
-      ))}
-    </div>
-  );
-}
+const List = () => (
+  <div>
+    {stories.map((story) => (
+      <div key={story.objectID}>
+        <h3>
+          <a href={story.url} target="_blank">{story.title}</a>
+        </h3>
+        <p>By: <span>{story.author}</span></p>
+        <p>Points: <span>{story.points}</span></p>
+        <p>Comments: <span>{story.num_comments}</span></p>
+      </div>
+    ))}
+  </div>
+);
 
-function App() {
-  return (
-    <div>
-      <Header />
-      <Search />
-      <List />
-    </div>
-  );
-}
+const App = () => (
+  <div>
+    <Header />
+    <Search />
+    <List />
+  </div>
+);
 
 export default App;
 
 // Reflection:
-// 1. App is the main container that renders all other components
-// 2. List is responsible for rendering the stories array
-// 3. Search is responsible for displaying the search input
-// 4. This structure is cleaner because each component has one responsibility
+// 1. Concise body arrow functions are used when the function only returns a value
+// 2. Block body arrow functions are used when we need to add logic inside
+// 3. An event object contains information about the event, like target.value for input
