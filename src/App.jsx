@@ -7,8 +7,6 @@
 //   points: popularity score
 //   num_comments: number of comments
 // }
-// objectID is used as key because it is unique and stable
-// This structure is realistic because it matches real API responses
 
 const stories = [
   {
@@ -37,10 +35,26 @@ const stories = [
   },
 ];
 
-function App() {
+function Header() {
   return (
     <div>
       <h1>Hacker News Stories</h1>
+    </div>
+  );
+}
+
+function Search() {
+  return (
+    <div>
+      <label htmlFor="search">Search: </label>
+      <input type="text" id="search" />
+    </div>
+  );
+}
+
+function List() {
+  return (
+    <div>
       {stories.map((story) => (
         <div key={story.objectID}>
           <h3>
@@ -55,8 +69,20 @@ function App() {
   );
 }
 
+function App() {
+  return (
+    <div>
+      <Header />
+      <Search />
+      <List />
+    </div>
+  );
+}
+
 export default App;
 
-// 1. map() is essential because it returns a new array of JSX elements to render
-// 2. objectID is the correct key because it is unique and never changes
-// 3. When using the real API, stories will come from a fetch() call instead of a fixed array
+// Reflection:
+// 1. App is the main container that renders all other components
+// 2. List is responsible for rendering the stories array
+// 3. Search is responsible for displaying the search input
+// 4. This structure is cleaner because each component has one responsibility
