@@ -1,12 +1,8 @@
-// Story data structure:
-// {
-//   objectID: unique identifier → used as React key
-//   title: title of the article
-//   url: link to the article
-//   author: who posted it
-//   points: popularity score
-//   num_comments: number of comments
-// }
+// Props: data passed from parent to child (read-only)
+// State: data owned by a component that can change over time
+// We lift state up so App can share searchTerm with both Search and List
+
+import { useState } from "react";
 
 const stories = [
   {
@@ -41,46 +37,66 @@ const Header = () => (
   </div>
 );
 
-const Search = () => {
-  const handleChange = (event) => {
-    console.log(event.target.value);
-    console.log("User is typing...");
-  };
+const Item = ({ story }) => (
+  <div key={story.objectID}>
+    <h3>
+      <a href={story.url} target="_blank">{story.title}</a>
+    </h3>
+    <p>By: <span>{story.author}</span></p>
+    <p>Points: <span>{story.points}</span></p>
+    <p>Comments: <span>{story.num_comments}</span></p>
+  </div>
+);
 
+const List = ({ stories }) => {
+  console.log("List rendered");
   return (
     <div>
-      <label htmlFor="search">Search: </label>
-      <input type="text" id="search" onChange={handleChange} />
+      {stories.map((story) => (
+        <Item key={story.objectID} story={story} />
+      ))}
     </div>
   );
 };
 
-const List = () => (
-  <div>
-    {stories.map((story) => (
-      <div key={story.objectID}>
-        <h3>
-          <a href={story.url} target="_blank">{story.title}</a>
-        </h3>
-        <p>By: <span>{story.author}</span></p>
-        <p>Points: <span>{story.points}</span></p>
-        <p>Comments: <span>{story.num_comments}</span></p>
-      </div>
-    ))}
-  </div>
-);
+const Search = ({ onSearch }) => {
+  console.log("Search rendered");
+  return (
+    <div>
+      <label htmlFor="search">Search: </label>
+      <input
+        type="text"
+        id="search"
+        onChange={(event) => onSearch(event.target.value)}
+      />
+    </div>
+  );
+};
 
-const App = () => (
-  <div>
-    <Header />
-    <Search />
-    <List />
-  </div>
-);
+const App = () => {
+  console.log("App rendered");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+  };
+
+  const filteredStories = stories.filter((story) =>
+    story.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div>
+      <Header />
+      <Search onSearch={handleSearch} />
+      <List stories={filteredStories} />
+    </div>
+  );
+};
 
 export default App;
 
 // Reflection:
-// 1. Concise body arrow functions are used when the function only returns a value
-// 2. Block body arrow functions are used when we need to add logic inside
-// 3. An event object contains information about the event, like target.value for input
+// 1. Props are read-only data passed from parent to child. State is data owned by a component that can change.
+// 2. We lift state up so multiple components can share and react to the same data.
+// 3. Filtering logic should live in App because it owns both the data and the searchTerm.
