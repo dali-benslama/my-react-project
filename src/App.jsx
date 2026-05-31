@@ -1,31 +1,6 @@
 import { useState, useEffect } from "react";
 
-const initialStories = [
-  {
-    objectID: 1,
-    title: "React is the future of web development",
-    url: "https://reactjs.org",
-    author: "dali-benslama",
-    points: 120,
-    num_comments: 35,
-  },
-  {
-    objectID: 2,
-    title: "Vite makes React development faster",
-    url: "https://vitejs.dev",
-    author: "evan-you",
-    points: 85,
-    num_comments: 20,
-  },
-  {
-    objectID: 3,
-    title: "JavaScript is everywhere",
-    url: "https://developer.mozilla.org",
-    author: "mdn-web",
-    points: 200,
-    num_comments: 50,
-  },
-];
+const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
 
 const Header = () => (
   <div>
@@ -70,23 +45,42 @@ const App = () => {
     localStorage.getItem("search") || ""
   );
 
-  const [stories, setStories] = useState(initialStories);
+  const [url, setUrl] = useState(API_ENDPOINT + (localStorage.getItem("search") || ""));
+  const [stories, setStories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("search", searchTerm);
   }, [searchTerm]);
 
+  useEffect(() => {
+    if (!url) return;
+    setIsLoading(true);
+    setIsError(false);
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        setStories(data.hits);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsError(true);
+        setIsLoading(false);
+      });
+  }, [url]);
+
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    setUrl(API_ENDPOINT + searchTerm);
   };
 
   const handleRemoveItem = (item) => {
     setStories(stories.filter((story) => story.objectID !== item.objectID));
   };
-
-  const filteredStories = stories.filter((story) =>
-    story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div>
@@ -98,7 +92,18 @@ const App = () => {
       >
         <strong>Search:</strong>
       </InputWithLabel>
-      <List stories={filteredStories} onRemoveItem={handleRemoveItem} />
+      <button
+        disabled={!searchTerm}
+        onClick={handleSubmit}
+      >
+        Submit
+      </button>
+      {isError && <p>Something went wrong. Please try again.</p>}
+      {isLoading ? (
+        <p>Loading ...</p>
+      ) : (
+        <List stories={stories} onRemoveItem={handleRemoveItem} />
+      )}
     </div>
   );
 };
@@ -106,6 +111,6 @@ const App = () => {
 export default App;
 
 // Reflection:
-// 1. A component is reusable when it accepts dynamic props instead of hard-coded values
-// 2. Component composition is using children to pass content into a component
-// 3. We pass handlers down the tree because the parent owns the state and must control changes
+// 1. useEffect is used for fetching because it runs after render and handles side effects safely
+// 2. Loading state means data is being fetched. Error state means something went wrong.
+// 3. We control when fetching happens to avoid unnecessary API calls on every keystroke
