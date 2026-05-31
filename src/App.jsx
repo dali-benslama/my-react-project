@@ -1,8 +1,4 @@
-// Props: data passed from parent to child (read-only)
-// State: data owned by a component that can change over time
-// We lift state up so App can share searchTerm with both Search and List
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const stories = [
   {
@@ -38,7 +34,7 @@ const Header = () => (
 );
 
 const Item = ({ story }) => (
-  <div key={story.objectID}>
+  <div>
     <h3>
       <a href={story.url} target="_blank">{story.title}</a>
     </h3>
@@ -48,34 +44,34 @@ const Item = ({ story }) => (
   </div>
 );
 
-const List = ({ stories }) => {
-  console.log("List rendered");
-  return (
-    <div>
-      {stories.map((story) => (
-        <Item key={story.objectID} story={story} />
-      ))}
-    </div>
-  );
-};
+const List = ({ stories }) => (
+  <div>
+    {stories.map((story) => (
+      <Item key={story.objectID} story={story} />
+    ))}
+  </div>
+);
 
-const Search = ({ onSearch }) => {
-  console.log("Search rendered");
-  return (
-    <div>
-      <label htmlFor="search">Search: </label>
-      <input
-        type="text"
-        id="search"
-        onChange={(event) => onSearch(event.target.value)}
-      />
-    </div>
-  );
-};
+const Search = ({ searchTerm, onSearch }) => (
+  <div>
+    <label htmlFor="search">Search: </label>
+    <input
+      type="text"
+      id="search"
+      value={searchTerm}
+      onChange={(event) => onSearch(event.target.value)}
+    />
+  </div>
+);
 
 const App = () => {
-  console.log("App rendered");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(
+    localStorage.getItem("search") || ""
+  );
+
+  useEffect(() => {
+    localStorage.setItem("search", searchTerm);
+  }, [searchTerm]);
 
   const handleSearch = (value) => {
     setSearchTerm(value);
@@ -88,7 +84,7 @@ const App = () => {
   return (
     <div>
       <Header />
-      <Search onSearch={handleSearch} />
+      <Search searchTerm={searchTerm} onSearch={handleSearch} />
       <List stories={filteredStories} />
     </div>
   );
@@ -97,6 +93,6 @@ const App = () => {
 export default App;
 
 // Reflection:
-// 1. Props are read-only data passed from parent to child. State is data owned by a component that can change.
-// 2. We lift state up so multiple components can share and react to the same data.
-// 3. Filtering logic should live in App because it owns both the data and the searchTerm.
+// 1. A controlled component is an input whose value is controlled by React state
+// 2. A side effect is anything that happens outside React rendering, like localStorage or API calls
+// 3. useEffect runs after render and lets us safely handle side effects without blocking the UI
