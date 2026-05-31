@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const stories = [
+const initialStories = [
   {
     objectID: 1,
     title: "React is the future of web development",
@@ -33,7 +33,19 @@ const Header = () => (
   </div>
 );
 
-const Item = ({ story }) => (
+const InputWithLabel = ({ id, value, onInputChange, type = "text", children }) => (
+  <div>
+    <label htmlFor={id}>{children}</label>
+    <input
+      id={id}
+      type={type}
+      value={value}
+      onChange={onInputChange}
+    />
+  </div>
+);
+
+const Item = ({ story, onRemoveItem }) => (
   <div>
     <h3>
       <a href={story.url} target="_blank">{story.title}</a>
@@ -41,26 +53,15 @@ const Item = ({ story }) => (
     <p>By: <span>{story.author}</span></p>
     <p>Points: <span>{story.points}</span></p>
     <p>Comments: <span>{story.num_comments}</span></p>
+    <button onClick={() => onRemoveItem(story)}>Delete</button>
   </div>
 );
 
-const List = ({ stories }) => (
+const List = ({ stories, onRemoveItem }) => (
   <div>
     {stories.map((story) => (
-      <Item key={story.objectID} story={story} />
+      <Item key={story.objectID} story={story} onRemoveItem={onRemoveItem} />
     ))}
-  </div>
-);
-
-const Search = ({ searchTerm, onSearch }) => (
-  <div>
-    <label htmlFor="search">Search: </label>
-    <input
-      type="text"
-      id="search"
-      value={searchTerm}
-      onChange={(event) => onSearch(event.target.value)}
-    />
   </div>
 );
 
@@ -69,12 +70,18 @@ const App = () => {
     localStorage.getItem("search") || ""
   );
 
+  const [stories, setStories] = useState(initialStories);
+
   useEffect(() => {
     localStorage.setItem("search", searchTerm);
   }, [searchTerm]);
 
-  const handleSearch = (value) => {
-    setSearchTerm(value);
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleRemoveItem = (item) => {
+    setStories(stories.filter((story) => story.objectID !== item.objectID));
   };
 
   const filteredStories = stories.filter((story) =>
@@ -84,8 +91,14 @@ const App = () => {
   return (
     <div>
       <Header />
-      <Search searchTerm={searchTerm} onSearch={handleSearch} />
-      <List stories={filteredStories} />
+      <InputWithLabel
+        id="search"
+        value={searchTerm}
+        onInputChange={handleSearch}
+      >
+        <strong>Search:</strong>
+      </InputWithLabel>
+      <List stories={filteredStories} onRemoveItem={handleRemoveItem} />
     </div>
   );
 };
@@ -93,6 +106,6 @@ const App = () => {
 export default App;
 
 // Reflection:
-// 1. A controlled component is an input whose value is controlled by React state
-// 2. A side effect is anything that happens outside React rendering, like localStorage or API calls
-// 3. useEffect runs after render and lets us safely handle side effects without blocking the UI
+// 1. A component is reusable when it accepts dynamic props instead of hard-coded values
+// 2. Component composition is using children to pass content into a component
+// 3. We pass handlers down the tree because the parent owns the state and must control changes
